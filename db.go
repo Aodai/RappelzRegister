@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/denisenkom/go-mssqldb"
 	"log"
+
+	_ "github.com/denisenkom/go-mssqldb"
 )
 
 var db *sql.DB
@@ -33,8 +34,8 @@ func userExists(user string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	tsql := fmt.Sprintf("SELECT * FROM dbo.Accounts WHERE login_name='%s';", user)
-	rows, err := db.QueryContext(ctx, tsql)
+	tsql := "SELECT * FROM dbo.Accounts WHERE login_name=@Username;"
+	rows, err := db.QueryContext(ctx, tsql, sql.Named("Username", user))
 	if err != nil {
 		return false, err
 	}
