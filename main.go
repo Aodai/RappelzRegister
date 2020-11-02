@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 )
 
 var config configuration
 
 func main() {
-
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
 	sigCh := make(chan os.Signal)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -34,5 +36,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", logging(index))
-	http.ListenAndServe(fmt.Sprintf(":%d", config.WebPort), nil)
+	go http.ListenAndServe(fmt.Sprintf(":%d", config.WebPort), nil)
+	fmt.Printf("Can be accessed at http://127.0.0.1:%d/\n", config.WebPort)
+	wg.Wait()
 }
